@@ -1,0 +1,142 @@
+---
+title: "Code Book for GCD Course Project"
+author: "Laurel Gerdine"
+date: "Friday, March 20, 2015"
+output: html_document
+---
+
+##Background
+
+* The purpose of this document is to describes the variables, the data, and any     transformations or work performed to clean up the data.
+
+* The raw data for this project was downloaded from https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
+
+* The raw data represents is a set of readings taken on Samsung phones from 30 subjects who performed 6 activities including walking, walking upstairs, walking downstairs, lying, sitting and standing. Two basic types of readings were taken from the accelerometer and the gyroscope embedded in the phone and then this data was manipulated in various ways to produce the initial raw data set.
+
+* More data about this study can be found here: [http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones]
+
+##Citations and Sources
+* Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. A Public Domain Dataset for Human Activity Recognition Using Smartphones. 21th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning, ESANN 2013. Bruges, Belgium 24-26 April 2013. 
+
+* Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012
+
+
+##Data and Process
+
+The purpose of the run_analysis R script is to: 
+  1.Merge the raw data (training and the test) sets to create one data set.
+  2.Extract only the measurements on the mean and standard deviation for each       measurement. 
+  3.Use descriptive activity names to name the activities in the data set
+  4.Appropriately label the data set with descriptive variable names. 
+  5.From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+
+###Step 1:
+The work space was prepped including setting directory to the local data directory  and loading the needed packages to work with the data. These packages included data.table, dplyr and plyr.
+
+###Step 2: 
+1. The files were then read in, unzipped, cleaned up and merged together to create one set of data. Descriptive column names were added to all data sets.
+
+2. The features.txt was read in first. This file contains descriptions of each variable in the raw data set. After reading this in, this file was cleaned up to remove all problematic characters (e.g. punctuation) so that the descriptions could easily be used as column names in R. I choose to do this on for all columns in case data beyond mean and std was needed for subsequent analysis. 
+
+3. The activity_labels.txt file contains the names of the activities that were performed by the subjects. Each activity label corresponds to an activity label code. There are 6 activities that were performed in this study/
+
+4. For each of the test and train groups, three files were read in. 
+ * "Subject" which contains one column of data that identifies the subject (by numeric code, 1-30) that completed that particular observation of data
+ * "x" which contains the measurement data for each observation
+ * "y" which contains the activity code (1-6) associated with each observation.
+
+5. Column names were then replaced across all the data sets with more descriptive names from the features.txt file and manually for the subject and activity_labels files.
+
+6. The files were then merged together to create one data set, first merging the identifying variables of Subject and Activity with the data and then combining the test and train data together.
+
+7. This interim data set had 10299 observations of 81 variables.
+
+###Step 3: 
+
+1. Columns that measured means and std were extracted
+
+2. Any column names that contained the text "mean" or "std" was chosen to be extracted. In order to ensure that the data could be used for whatever final analyses might be performed (more flexibility for later), I decided to select ALL variables that measured means or std in any way, including derived measurements such as angle, etc...I thought it better to include more than to exclude something that might be needed in later analysis.
+
+3. First, those columns containing "mean" were extracted, then those columns containing "std" were selected. Then, these two extracted data sets were combined into a new data set that coontained 10299 observations of 81 variables.
+
+###Step 4: 
+1. Each observation was then labelled with the descriptive name for its associated activity. The activity code was replaced with the activity label for each observation. 
+
+###Step 5: 
+1. A second independent data set was created that held the average of each variable for each activity and each subject. This final dataset had 180 (30 subjects times 6 activities each) of 81 variables (including 2 identifying variable -- Subject and Activity.) 
+
+2. This is a (wide) tidy data set because there is one line for each observation (subject 1 performing activity 2, subject 1 performing activity 3, etc...), there is one variable per column.
+
+##Variables
+
+1. *Identification Variables*
+* Subject (int): this is an identification number that is associated with the subject that was wearing the cellphone. There are a total of 30 subjects. Values: 1 - 30.
+
+* Activity (factor): this is label for the activity being recorded in the observation. There are a total of 6 different activities.
+
+2. *Value variables*
+* Variables (num) that measure the mean of each variable selected from the raw data set across one subject and one activity. Names of variables are listed below. More information about the raw variables can be found in the features_info.txt file which you can download from the link above. Some of this information is copied below for easy reference.
+
+* The features selected for this database come from the accelerometer and gyroscope 3-axial raw signals tAcc-XYZ and tGyro-XYZ. These time domain signals (prefix 't' to denote time) were captured at a constant rate of 50 Hz. Then they were filtered using a median filter and a 3rd order low pass Butterworth filter with a corner frequency of 20 Hz to remove noise. Similarly, the acceleration signal was then separated into body and gravity acceleration signals (tBodyAcc-XYZ and tGravityAcc-XYZ) using another low pass Butterworth filter with a corner frequency of 0.3 Hz. 
+
+* Subsequently, the body linear acceleration and angular velocity were derived in time to obtain Jerk signals (tBodyAccJerk-XYZ and tBodyGyroJerk-XYZ). Also the magnitude of these three-dimensional signals were calculated using the Euclidean norm (tBodyAccMag, tGravityAccMag, tBodyAccJerkMag, tBodyGyroMag, tBodyGyroJerkMag). 
+
+* Finally a Fast Fourier Transform (FFT) was applied to some of these signals producing fBodyAcc-XYZ, fBodyAccJerk-XYZ, fBodyGyro-XYZ, fBodyAccJerkMag, fBodyGyroMag, fBodyGyroJerkMag. (Note the 'f' to indicate frequency domain signals). 
+
+* "XYZ' is used to denote 3-axial signals in the X, Y and Z directions.
+
+#### List of Value Variables
+  tBodyAccmeanX_mean
+  tBodyAccmeanY_mean               
+  tBodyAccmeanZ_mean
+  tGravityAccmeanX_mean            
+  tGravityAccmeanY_mean
+  tGravityAccmeanZ_mean
+  tBodyAccJerkmeanX_mean
+  tBodyAccJerkmeanY_mean
+  tBodyAccJerkmeanZ_mean
+  tBodyGyromeanX_mean
+  tBodyGyromeanY_mean
+  tBodyGyromeanZ_mean
+  tBodyGyroJerkmeanX_mean
+  tBodyGyroJerkmeanY_mean
+  tBodyGyroJerkmeanZ_mean
+  tBodyAccMagmean_mean             
+  tGravityAccMagmean_mean
+  tBodyAccJerkMagmean_mean
+  tBodyGyroMagmean_mean
+  tBodyGyroJerkMagmean_mean
+  fBodyAccmeanX_mean
+  fBodyAccmeanY_mean
+  fBodyAccmeanZ_mean
+  fBodyAccmeanFreqX_mean
+  fBodyAccmeanFreqY_mean
+  fBodyAccmeanFreqZ_mean
+  fBodyAccJerkmeanX_mean
+  fBodyAccJerkmeanY_mean
+  fBodyAccJerkmeanZ_mean
+  fBodyAccJerkmeanFreqX_mean
+  fBodyAccJerkmeanFreqY_mean
+  fBodyAccJerkmeanFreqZ_mean
+  fBodyGyromeanX_mean
+  fBodyGyromeanY_mean
+  fBodyGyromeanZ_mean
+  fBodyGyromeanFreqX_mean
+  fBodyGyromeanFreqY_mean
+  fBodyGyromeanFreqZ_mean          
+  fBodyAccMagmean_mean
+  fBodyAccMagmeanFreq_mean
+  fBodyBodyAccJerkMagmean_mean
+  fBodyBodyAccJerkMagmeanFreq_mean
+  fBodyBodyGyroMagmean_mean
+  fBodyBodyGyroMagmeanFreq_mean
+  fBodyBodyGyroJerkMagmean_mean
+  fBodyBodyGyroJerkMagmeanFreq_mean"
+  tBodyAccstdX_mean
+  tBodyAccstdY_mean                
+  tBodyAccstdZ_mean
+  tGravityAccstdX_mean             
+  tGravityAccstdY_mean              
+  tGravityAccstdZ_mean             
+  tBodyAccJerkstdX_mean
+  tBodyAccJerkstdY_mean            
